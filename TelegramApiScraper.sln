@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramApiScraper", "TelegramApiScraper\TelegramApiScraper.csproj", "{E135BFF3-5988-4347-A9BA-766AC1404D9A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FC9ACE13-1019-4B2E-82CF-63D51E2AA0BE}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E135BFF3-5988-4347-A9BA-766AC1404D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E135BFF3-5988-4347-A9BA-766AC1404D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E135BFF3-5988-4347-A9BA-766AC1404D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E135BFF3-5988-4347-A9BA-766AC1404D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {778D0F04-335E-4DD0-A6D5-457C68E56F81}
+	EndGlobalSection
+EndGlobal
