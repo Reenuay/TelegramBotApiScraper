@@ -4,7 +4,7 @@ namespace TelegramApiScraper
 {
     internal class Program
     {
-        private static void Main()
+        static private void Main()
         {
             var data = Scraper.Scrape();
 
