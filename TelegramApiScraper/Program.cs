@@ -27,7 +27,6 @@ namespace TelegramApiScraper
     class ApiType
     {
         public int Order { get; set; }
-        public string Name { get; set; }
         public List<string> Desc { get; set; } = new List<string>();
         public ApiTypeKind? Kind { get; set; }
         public Dictionary<string, ApiField> Fields { get; set; }
@@ -35,11 +34,11 @@ namespace TelegramApiScraper
 
     class Data
     {
-        public List<ApiType> Types { get; set; }
-            = new List<ApiType>();
+        public Dictionary<string, ApiType> Types { get; set; }
+            = new Dictionary<string, ApiType>();
 
-        public List<ApiType> Methods { get; set; }
-            = new List<ApiType>();
+        public Dictionary<string, ApiType> Methods { get; set; }
+            = new Dictionary<string, ApiType>();
     }
 
     class Program
@@ -79,11 +78,11 @@ namespace TelegramApiScraper
                             {
                                 if (type.Kind == ApiTypeKind.Method)
                                 {
-                                    data.Methods.Add(type);
+                                    data.Methods.Add(typeName, type);
                                 }
                                 else
                                 {
-                                    data.Types.Add(type);
+                                    data.Types.Add(typeName, type);
                                 }
 
                                 typeName = null;
@@ -212,7 +211,6 @@ namespace TelegramApiScraper
                     typeName = docText;
                     type = new ApiType
                     {
-                        Name = typeName,
                         Order = typeOrder,
                         Kind = char.IsUpper(docText.First())
                             ? null
