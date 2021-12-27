@@ -30,7 +30,11 @@ namespace TelegramApiScraper
             foreach (var doc in docs)
             {
                 var docName = doc.Name;
-                var docText = HtmlEntity.DeEntitize(doc.InnerText);
+                var docText = HtmlEntity
+                    .DeEntitize(doc.InnerText)
+                    .Trim()
+                    .Replace("\n\n", " ")
+                    .Replace("\n", " ");
 
                 if (type is not null)
                 {
@@ -114,7 +118,7 @@ namespace TelegramApiScraper
                                         );
                                         fieldDesc = HtmlEntity.DeEntitize(
                                             tds[2].InnerText
-                                        );
+                                        ).Replace("  ", " ");
                                         fieldRequired = !fieldDesc.StartsWith("Optional.");
                                     }
 
