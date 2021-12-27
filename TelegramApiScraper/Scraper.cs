@@ -1,5 +1,4 @@
-﻿using System;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -174,8 +173,6 @@ namespace TelegramApiScraper
 
                 if (docName is "h4" && !docText.Contains(' '))
                 {
-                    Console.WriteLine($"{docText} — {typeOrder}");
-
                     typeName = docText;
                     type = new ApiType
                     {
