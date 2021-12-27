@@ -24,12 +24,13 @@ namespace TelegramApiScraper
             Console.WriteLine("Data scraped successfuly!");
             Console.WriteLine();
             Console.WriteLine("Choose what you want to do with it:");
-            Console.WriteLine("1 to save it to file");
 
             var showChoice = true;
 
             while (showChoice)
             {
+                Console.WriteLine("1 to save it to file");
+
                 var choice = Console.ReadLine();
 
                 switch (choice)
