@@ -9,41 +9,9 @@ using System.Text.Json.Serialization;
 
 namespace TelegramApiScraper
 {
-    enum ApiTypeKind
+    internal class Program
     {
-        Record,
-        Union,
-        Method
-    }
-
-    class ApiField
-    {
-        public int Order { get; set; }
-        public string Type { get; set; }
-        public bool Required { get; set; }
-        public string Desc { get; set; }
-    }
-
-    class ApiType
-    {
-        public int Order { get; set; }
-        public List<string> Desc { get; set; } = new List<string>();
-        public ApiTypeKind? Kind { get; set; }
-        public Dictionary<string, ApiField> Fields { get; set; }
-    }
-
-    class Data
-    {
-        public Dictionary<string, ApiType> Types { get; set; }
-            = new Dictionary<string, ApiType>();
-
-        public Dictionary<string, ApiType> Methods { get; set; }
-            = new Dictionary<string, ApiType>();
-    }
-
-    class Program
-    {
-        static void Main()
+        private static void Main()
         {
             var address = @"https://core.telegram.org/bots/api";
 
