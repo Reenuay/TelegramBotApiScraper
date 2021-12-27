@@ -15,21 +15,7 @@ namespace TelegramApiScraper
         {
             var data = Scraper.Scrape();
 
-            var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                Converters =
-                {
-                    new JsonStringEnumConverter()
-                },
-                WriteIndented = true
-            };
-
-            var json = JsonSerializer.Serialize(data, options);
-
-            var filePath = "C:/Users/USER/Desktop/api.raw.json";
-
-            File.WriteAllText(filePath, json);
+            Serializer.Serialize(data, "C:/Users/USER/Desktop/api.raw.json");
 
             Console.WriteLine($"Api types overall: {data.Types.Count}");
             Console.WriteLine($"Api methods overall: {data.Methods.Count}");
