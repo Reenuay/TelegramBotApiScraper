@@ -95,6 +95,7 @@ csharp_preferred_modifier_order = public,static:suggestion
 
 #prefer pattern matching instead of is expression with type casts
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+insert_final_newline=true
 
 [*.{cs,vb}]
 end_of_line=lf
