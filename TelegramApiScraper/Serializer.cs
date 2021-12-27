@@ -8,7 +8,7 @@ namespace TelegramApiScraper
 {
     static internal class Serializer
     {
-        static internal void Serialize(Data data, string filePath)
+        static internal void SerializeTo(string filePath, Data data)
         {
             if (filePath is null)
             {
