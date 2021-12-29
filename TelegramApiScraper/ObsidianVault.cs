@@ -156,13 +156,13 @@ namespace TelegramApiScraper
         }
 
         static private MdDocument MakeMethod(
-            string typeName,
+            string methodName,
             IEnumerable<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> parameters
         )
         {
             var doc = new MdDocument(
-                MakeHeader(char.ToUpper(typeName[0]) + typeName[1..], desc)
+                MakeHeader(methodName, desc)
                 .Append(new MdThematicBreak())
             );
 
@@ -314,8 +314,10 @@ namespace TelegramApiScraper
                 }
             }
 
-            foreach (var (methodName, method) in data.Methods)
+            foreach (var (tempName, method) in data.Methods)
             {
+                var methodName = char.ToUpper(tempName[0]) + tempName[1..];
+
                 var fileName = Path.Combine(
                     methodsDir,
                     $"{methodName}.md"
