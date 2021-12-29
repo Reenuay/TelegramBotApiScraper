@@ -24,6 +24,7 @@ namespace TelegramApiScraper
         {
             return typeName switch
             {
+                "Int" => "int",
                 "Integer" =>
                     desc.Contains("64-bit") || desc.Contains("64 bit")
                     ? "int64"
@@ -33,6 +34,7 @@ namespace TelegramApiScraper
                 "True" => "unit",
                 "Boolean" => "bool",
                 "String" => "string",
+                "Messages" => "Message",
                 _ => typeName
             };
         }
@@ -95,7 +97,8 @@ namespace TelegramApiScraper
                     desc.Select(
                         p => new MdParagraph(MakeSpan(p))
                     )
-                );
+                )
+                .Append(new MdThematicBreak());
         }
 
         static private MdDocument MakePrimitive() => new();
@@ -116,7 +119,6 @@ namespace TelegramApiScraper
         {
             return new MdDocument(
                 MakeHeader(typeName, desc)
-                .Append(new MdThematicBreak())
                 .Append(new MdHeading("Fields", 5))
                 .Append(new MdTable(
                     new MdTableRow("Name", "Type", "Description"),
@@ -140,7 +142,6 @@ namespace TelegramApiScraper
         {
             return new MdDocument(
                 MakeHeader(typeName, desc)
-                .Append(new MdThematicBreak())
                 .Append(new MdHeading("Cases", 5))
                 .Append(new MdTable(
                     new MdTableRow("Name", "Type", "Description"),
@@ -157,14 +158,50 @@ namespace TelegramApiScraper
 
         static private MdDocument MakeMethod(
             string methodName,
-            IEnumerable<string> desc,
-            IEnumerable<KeyValuePair<string, ApiField>> parameters
+            List<string> desc,
+            IEnumerable<KeyValuePair<string, ApiField>> parameters,
+            Dictionary<string, ApiType> types,
+            HashSet<string> primitives
         )
         {
             var doc = new MdDocument(
                 MakeHeader(methodName, desc)
-                .Append(new MdThematicBreak())
             );
+
+            var comparison = StringComparison.OrdinalIgnoreCase;
+
+            var returnSentence = desc
+                .SelectMany(d =>
+                    d.Split('.', StringSplitOptions.RemoveEmptyEntries)
+                )
+                .Where(s =>
+                    s.Contains("is returned", comparison)
+                    || s.Contains("returns", comparison)
+                )
+                .First()
+                .Trim();
+
+            var returnTypes =
+                string.Join(
+                    " | ",
+                    returnSentence
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => Canonicalize(t, ""))
+                        .Where(t =>
+                            types.ContainsKey(t) || primitives.Contains(t)
+                        )
+                        .Select(t =>
+                            $"[[{t}]]" +
+                                (returnSentence
+                                    .Contains("array of", comparison)
+                                    ? " [[list]]"
+                                    : "")
+                        )
+                );
+
+            doc.Root.Add(new MdHeading("Returns", 5));
+            doc.Root.Add(new MdParagraph(MakeSpan(returnTypes)));
+            doc.Root.Add(new MdThematicBreak());
 
             if (parameters is not null) {
                 doc.Root.Add(new MdHeading("Parameters", 5));
@@ -325,7 +362,13 @@ namespace TelegramApiScraper
 
                 File.WriteAllText(
                     fileName,
-                    MakeMethod(methodName, method.Desc, method.Fields)
+                    MakeMethod(
+                        methodName,
+                        method.Desc,
+                        method.Fields,
+                        data.Types,
+                        primitives
+                    )
                     .ToString()
                 );
             }
