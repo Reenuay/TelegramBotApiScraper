@@ -15,11 +15,22 @@ namespace TelegramApiScraper
             Console.WriteLine("Done!");
         }
 
+        static private void FillVault(Data data)
+        {
+            Console.WriteLine("Enter vault directory path...");
+
+            var path = Console.ReadLine();
+
+            ObsidianVault.Fill(path, data);
+
+            Console.WriteLine("Done!");
+        }
+
         static private void Main()
         {
             Console.WriteLine("Getting data from Telegram servers...");
 
-            var data = Scraper.Scrape();
+            Data data = Scraper.Scrape();
 
             Console.WriteLine("Data scraped successfuly!");
             Console.WriteLine();
@@ -30,6 +41,7 @@ namespace TelegramApiScraper
             while (showChoice)
             {
                 Console.WriteLine("1 to save it to file");
+                Console.WriteLine("2 to save types to vault");
 
                 var choice = Console.ReadLine();
 
@@ -37,6 +49,11 @@ namespace TelegramApiScraper
                 {
                     case "1":
                         SaveJson(data);
+                        showChoice = false;
+                        break;
+
+                    case "2":
+                        FillVault(data);
                         showChoice = false;
                         break;
 

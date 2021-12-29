@@ -157,7 +157,10 @@ namespace TelegramApiScraper
 
                                     var field = new ApiField
                                     {
-                                        Order = fieldOrder
+                                        Order = fieldOrder,
+                                        Type = text,
+                                        Desc = "",
+                                        Required = true
                                     };
 
                                     type.Fields.Add(text, field);

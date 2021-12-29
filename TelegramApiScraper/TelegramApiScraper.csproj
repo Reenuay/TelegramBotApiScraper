@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grynwald.MarkdownGenerator" Version="2.5.34" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.39" />
+    <PackageReference Include="Markdig" Version="0.26.0" />
   </ItemGroup>
 
 </Project>
