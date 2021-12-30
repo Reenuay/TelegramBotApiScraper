@@ -68,11 +68,14 @@ namespace TelegramApiScraper
                 .Replace(" ", string.Empty);
         }
 
-        static private string GenerateTypeLink(ApiField field)
+        static private string GenerateTypeLink(
+            ApiField field,
+            bool isParam = false
+        )
         {
             var t = GetBaseType(field.Type, field.Desc);
             var l = GetListLevel(field.Type);
-            var r = field.Required;
+            var r = isParam || field.Required;
 
             return ConstructTypeDef(t, l, r);
         }
@@ -218,7 +221,7 @@ namespace TelegramApiScraper
                     parameters.Select(
                         p => new MdTableRow(
                             MakeSpan(MakePascalCase(p.Key)),
-                            MakeSpan(GenerateTypeLink(p.Value)),
+                            MakeSpan(GenerateTypeLink(p.Value, true)),
                             MakeSpan(p.Value.Required ? "Yes" : "No"),
                             MakeSpan(p.Value.Desc)
                         )
