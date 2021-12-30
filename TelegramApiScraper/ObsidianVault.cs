@@ -84,6 +84,7 @@ namespace TelegramApiScraper
 
         static private IEnumerable<MdBlock> MakeHeader(
             string typeName,
+            int order,
             IEnumerable<string> desc
         )
         {
@@ -91,6 +92,9 @@ namespace TelegramApiScraper
                 {
 
                     new MdHeading(typeName, 3),
+                    new MdThematicBreak(),
+                    new MdHeading("Number", 5),
+                    new MdParagraph(MakeSpan(order.ToString())),
                     new MdThematicBreak(),
                     new MdHeading("Description", 5)
                 }.Concat(
@@ -105,20 +109,22 @@ namespace TelegramApiScraper
 
         static private MdDocument MakeStub(
             string typeName,
+            int order,
             IEnumerable<string> desc
         )
         {
-            return new MdDocument(MakeHeader(typeName, desc));
+            return new MdDocument(MakeHeader(typeName, order, desc));
         }
 
         static private MdDocument MakeRecord(
             string typeName,
+            int order,
             IEnumerable<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> fields
         )
         {
             return new MdDocument(
-                MakeHeader(typeName, desc)
+                MakeHeader(typeName, order, desc)
                 .Append(new MdHeading("Fields", 5))
                 .Append(new MdTable(
                     new MdTableRow("Name", "Type", "Description"),
@@ -135,13 +141,14 @@ namespace TelegramApiScraper
 
         static private MdDocument MakeUnion(
             string typeName,
+            int order,
             IEnumerable<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> cases,
             Dictionary<string, ApiType> types
         )
         {
             return new MdDocument(
-                MakeHeader(typeName, desc)
+                MakeHeader(typeName, order, desc)
                 .Append(new MdHeading("Cases", 5))
                 .Append(new MdTable(
                     new MdTableRow("Name", "Type", "Description"),
@@ -158,6 +165,7 @@ namespace TelegramApiScraper
 
         static private MdDocument MakeMethod(
             string methodName,
+            int order,
             List<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> parameters,
             Dictionary<string, ApiType> types,
@@ -165,7 +173,7 @@ namespace TelegramApiScraper
         )
         {
             var doc = new MdDocument(
-                MakeHeader(methodName, desc)
+                MakeHeader(methodName, order, desc)
             );
 
             var comparison = StringComparison.OrdinalIgnoreCase;
@@ -313,7 +321,7 @@ namespace TelegramApiScraper
 
                             File.WriteAllText(
                                 fileName,
-                                MakeStub(typeName, type.Desc)
+                                MakeStub(typeName, type.Order, type.Desc)
                                 .ToString()
                             );
                         }
@@ -328,7 +336,12 @@ namespace TelegramApiScraper
 
                             File.WriteAllText(
                                 fileName,
-                                MakeRecord(typeName, type.Desc, type.Fields)
+                                MakeRecord(
+                                    typeName,
+                                    type.Order,
+                                    type.Desc,
+                                    type.Fields
+                                )
                                 .ToString()
                             );
                         }
@@ -343,7 +356,13 @@ namespace TelegramApiScraper
 
                             File.WriteAllText(
                                 fileName,
-                                MakeUnion(typeName, type.Desc, type.Fields, data.Types)
+                                MakeUnion(
+                                    typeName,
+                                    type.Order,
+                                    type.Desc,
+                                    type.Fields,
+                                    data.Types
+                                )
                                 .ToString()
                             );
                         }
@@ -364,6 +383,7 @@ namespace TelegramApiScraper
                     fileName,
                     MakeMethod(
                         methodName,
+                        method.Order,
                         method.Desc,
                         method.Fields,
                         data.Types,
