@@ -63,7 +63,11 @@ namespace TelegramApiScraper
                         case "p":
                         case "blockquote":
                             {
-                                type.Desc.Add(docText);
+                                type.Desc.Add(
+                                    docText.EndsWith(".")
+                                        ? docText
+                                        : docText + "."
+                                );
                             }
 
                             break;
@@ -77,11 +81,15 @@ namespace TelegramApiScraper
                                 var fieldOrder = 0;
 
                                 if (type.Kind is null)
+                                {
                                     type.Kind = ApiTypeKind.Record;
+                                }
 
                                 if (type.Fields is null)
+                                {
                                     type.Fields =
                                         new Dictionary<string, ApiField>();
+                                }
 
                                 foreach (var row in rows)
                                 {
@@ -129,6 +137,11 @@ namespace TelegramApiScraper
                                         fieldRequired = !fieldDesc.StartsWith("Optional.");
                                     }
 
+                                    fieldDesc = fieldDesc.EndsWith(".")
+                                        ? fieldDesc
+                                        : fieldDesc + "."
+                                        ;
+
                                     var field = new ApiField
                                     {
                                         Order = fieldOrder,
@@ -141,7 +154,6 @@ namespace TelegramApiScraper
 
                                     fieldOrder++;
                                 }
-
                             }
 
                             break;
@@ -155,8 +167,10 @@ namespace TelegramApiScraper
                                 type.Kind = ApiTypeKind.Union;
 
                                 if (type.Fields is null)
+                                {
                                     type.Fields =
                                         new Dictionary<string, ApiField>();
+                                }
 
                                 foreach (var _case in cases)
                                 {
