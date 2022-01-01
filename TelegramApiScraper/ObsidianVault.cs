@@ -31,7 +31,7 @@ namespace TelegramApiScraper
                     : (desc.Contains("Unix") ? "DateTime" : "int"),
                 "Float" => "float",
                 "Float number" => "float",
-                "True" => "unit",
+                "True" => "bool",
                 "Boolean" => "bool",
                 "String" => "string",
                 "Messages" => "Message",
