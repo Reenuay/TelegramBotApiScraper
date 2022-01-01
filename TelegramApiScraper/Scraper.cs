@@ -33,7 +33,9 @@ namespace TelegramApiScraper
                     .DeEntitize(doc.InnerText)
                     .Trim()
                     .Replace("\n\n", " ")
-                    .Replace("\n", " ");
+                    .Replace("\n", " ")
+                    .Replace('<', '{')
+                    .Replace('>', '}');
 
                 if (type is not null)
                 {
@@ -105,7 +107,9 @@ namespace TelegramApiScraper
                                         ) == "Yes";
                                         fieldDesc = HtmlEntity.DeEntitize(
                                             tds[3].InnerText
-                                        );
+                                        )
+                                        .Replace('<', '{')
+                                        .Replace('>', '}');
                                     }
                                     else
                                     {
@@ -117,7 +121,11 @@ namespace TelegramApiScraper
                                         );
                                         fieldDesc = HtmlEntity.DeEntitize(
                                             tds[2].InnerText
-                                        ).Replace("  ", " ");
+                                        )
+                                        .Replace("  ", " ")
+                                        .Replace('<', '{')
+                                        .Replace('>', '}');
+
                                         fieldRequired = !fieldDesc.StartsWith("Optional.");
                                     }
 
