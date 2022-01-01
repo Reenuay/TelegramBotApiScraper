@@ -132,7 +132,8 @@ namespace TelegramApiScraper
                                         )
                                         .Replace("  ", " ")
                                         .Replace('<', '{')
-                                        .Replace('>', '}');
+                                        .Replace('>', '}')
+                                        .Replace("Optional. ", "");
 
                                         fieldRequired = !fieldDesc.StartsWith("Optional.");
                                     }
