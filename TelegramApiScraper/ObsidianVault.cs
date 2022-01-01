@@ -275,9 +275,9 @@ namespace TelegramApiScraper
             return set;
         }
 
-        static internal void CleanDirectory(string path)
+        static private void CleanDirectory(string path, bool update)
         {
-            if (Directory.Exists(path))
+            if (!update && Directory.Exists(path))
             {
                 Directory.Delete(path, true);
             }
@@ -285,7 +285,19 @@ namespace TelegramApiScraper
             Directory.CreateDirectory(path);
         }
 
-        static internal void Fill(string vaultPath, Data data)
+        static private void SaveFile(string path, string content, bool update)
+        {
+            if (!update || File.Exists(path))
+            {
+                File.WriteAllText(path, content);
+            }
+        }
+
+        static internal void Fill(
+            string vaultPath,
+            Data data,
+            bool update = false
+        )
         {
             vaultPath = Path.Combine(vaultPath, "Api");
 
@@ -295,11 +307,11 @@ namespace TelegramApiScraper
             var unionDir = Path.Combine(vaultPath, "Types", "Union");
             var methodsDir = Path.Combine(vaultPath, "Methods");
 
-            CleanDirectory(primitivesDir);
-            CleanDirectory(stubsDir);
-            CleanDirectory(recordsDir);
-            CleanDirectory(unionDir);
-            CleanDirectory(methodsDir);
+            CleanDirectory(primitivesDir, update);
+            CleanDirectory(stubsDir, update);
+            CleanDirectory(recordsDir, update);
+            CleanDirectory(unionDir, update);
+            CleanDirectory(methodsDir, update);
 
             var primitives = CollectPrimitives(data);
             var emptyDoc = MakePrimitive().ToString();
@@ -308,7 +320,7 @@ namespace TelegramApiScraper
             {
                 var fileName = Path.Combine(primitivesDir, $"{primitive}.md");
 
-                File.WriteAllText(fileName, emptyDoc);
+                SaveFile(fileName, emptyDoc, update);
             }
 
             foreach (var (typeName, type) in data.Types)
@@ -322,10 +334,11 @@ namespace TelegramApiScraper
                                 $"{typeName}.md"
                             );
 
-                            File.WriteAllText(
+                            SaveFile(
                                 fileName,
                                 MakeStub(typeName, type.Order, type.Desc)
-                                .ToString()
+                                .ToString(),
+                                update
                             );
                         }
                         break;
@@ -337,7 +350,7 @@ namespace TelegramApiScraper
                                 $"{typeName}.md"
                             );
 
-                            File.WriteAllText(
+                            SaveFile(
                                 fileName,
                                 MakeRecord(
                                     typeName,
@@ -345,7 +358,8 @@ namespace TelegramApiScraper
                                     type.Desc,
                                     type.Fields
                                 )
-                                .ToString()
+                                .ToString(),
+                                update
                             );
                         }
                         break;
@@ -357,7 +371,7 @@ namespace TelegramApiScraper
                                 $"{typeName}.md"
                             );
 
-                            File.WriteAllText(
+                            SaveFile(
                                 fileName,
                                 MakeUnion(
                                     typeName,
@@ -366,7 +380,8 @@ namespace TelegramApiScraper
                                     type.Fields,
                                     data.Types
                                 )
-                                .ToString()
+                                .ToString(),
+                                update
                             );
                         }
                         break;
@@ -382,7 +397,7 @@ namespace TelegramApiScraper
                     $"{methodName}.md"
                 );
 
-                File.WriteAllText(
+                SaveFile(
                     fileName,
                     MakeMethod(
                         methodName,
@@ -392,7 +407,8 @@ namespace TelegramApiScraper
                         data.Types,
                         primitives
                     )
-                    .ToString()
+                    .ToString(),
+                    update
                 );
             }
         }
