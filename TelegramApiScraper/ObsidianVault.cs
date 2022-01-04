@@ -96,6 +96,13 @@ namespace TelegramApiScraper
                 desc = desc[ .. start];
             }
 
+            if (desc.Contains(" More about"))
+            {
+                var start = desc.IndexOf(" More about");
+
+                desc = desc[..start];
+            }
+
             return desc;
         }
 
