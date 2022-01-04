@@ -10,16 +10,6 @@ namespace TelegramApiScraper
 {
     static internal class ObsidianVault
     {
-        static private string GetBaseType(string typeName, string desc)
-        {
-            typeName = typeName.Trim();
-
-            return typeName.StartsWith("Array of")
-                ? GetBaseType(typeName[8..], desc)
-                : Canonicalize(typeName, desc)
-                ;
-        }
-
         static private string Canonicalize(string typeName, string desc)
         {
             return typeName switch
@@ -31,7 +21,7 @@ namespace TelegramApiScraper
                     : (desc.Contains("Unix") ? "DateTime" : "int"),
                 "Float" => "float",
                 "Float number" => "float",
-                "True" => "bool",
+                "True" => "unit",
                 "Boolean" => "bool",
                 "String" => "string",
                 "Messages" => "Message",
@@ -39,21 +29,42 @@ namespace TelegramApiScraper
             };
         }
 
+        static private IEnumerable<string> SplitTypes(string typeName)
+        {
+            return typeName.Split(
+                new string[] { " or ", ", ", " and " },
+                StringSplitOptions.RemoveEmptyEntries
+            );
+        }
+
+        static private IEnumerable<string> GetBaseTypes(
+            string typeName,
+            string desc
+        )
+        {
+            typeName = typeName.Trim();
+
+            return typeName.StartsWith("Array of")
+                ? GetBaseTypes(typeName[8..], desc)
+                : SplitTypes(typeName).Select(t => Canonicalize(t, desc))
+                ;
+        }
+
         static private int GetListLevel(string typeName)
         {
-            return typeName.StartsWith("Array of")
+            return typeName.StartsWith("Array of ")
                 ? 1 + GetListLevel(typeName[8..])
                 : 0
                 ;
         }
 
         static private string ConstructTypeDef(
-            string baseType,
+            IEnumerable<string> baseTypes,
             int listLevel,
             bool required
         )
         {
-            return $"[[{baseType}]]"
+            return string.Join(" or ", baseTypes.Select(t => $"[[{t}]]"))
                 + string.Concat(Enumerable.Repeat(" [[list]]", listLevel))
                 + (required ? "" : " [[option]]")
                 ;
@@ -73,7 +84,7 @@ namespace TelegramApiScraper
             bool isParam = false
         )
         {
-            var t = GetBaseType(field.Type, field.Desc);
+            var t = GetBaseTypes(field.Type, field.Desc);
             var l = GetListLevel(field.Type);
             var r = isParam || field.Required;
 
@@ -246,11 +257,14 @@ namespace TelegramApiScraper
                 {
                     foreach (var (_, field) in type.Fields)
                     {
-                        var baseTypeName = GetBaseType(field.Type, field.Desc);
+                        var baseTypeNames = GetBaseTypes(field.Type, field.Desc);
 
-                        if (!data.Types.ContainsKey(baseTypeName))
+                        foreach (var baseTypeName in baseTypeNames)
                         {
-                            set.Add(baseTypeName);
+                            if (!data.Types.ContainsKey(baseTypeName))
+                            {
+                                set.Add(baseTypeName);
+                            }
                         }
                     }
                 }
@@ -262,11 +276,14 @@ namespace TelegramApiScraper
                 {
                     foreach (var (_, field) in method.Fields)
                     {
-                        var baseTypeName = GetBaseType(field.Type, field.Desc);
+                        var baseTypeNames = GetBaseTypes(field.Type, field.Desc);
 
-                        if (!data.Types.ContainsKey(baseTypeName))
+                        foreach (var baseTypeName in baseTypeNames)
                         {
-                            set.Add(baseTypeName);
+                            if (!data.Types.ContainsKey(baseTypeName))
+                            {
+                                set.Add(baseTypeName);
+                            }
                         }
                     }
                 }
