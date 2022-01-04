@@ -91,6 +91,11 @@ namespace TelegramApiScraper
             return ConstructTypeDef(t, l, r);
         }
 
+        static private string MakeMetadata(int order)
+        {
+            return $"---\nnumber: {order}\n---\n\n";
+        }
+
         static private MdRawMarkdownSpan MakeSpan(string content)
         {
             return new MdRawMarkdownSpan(content);
@@ -98,17 +103,12 @@ namespace TelegramApiScraper
 
         static private IEnumerable<MdBlock> MakeHeader(
             string typeName,
-            int order,
             IEnumerable<string> desc
         )
         {
             return new MdBlock[]
                 {
-
                     new MdHeading(typeName, 3),
-                    new MdThematicBreak(),
-                    new MdHeading("Number", 5),
-                    new MdParagraph(MakeSpan(order.ToString())),
                     new MdThematicBreak(),
                     new MdHeading("Description", 5)
                 }.Concat(
@@ -119,41 +119,44 @@ namespace TelegramApiScraper
                 .Append(new MdThematicBreak());
         }
 
-        static private MdDocument MakePrimitive() => new();
+        static private string MakePrimitive() => new MdDocument().ToString();
 
-        static private MdDocument MakeStub(
+        static private string MakeStub(
             string typeName,
             int order,
             IEnumerable<string> desc
         )
         {
-            return new MdDocument(MakeHeader(typeName, order, desc));
+            return MakeMetadata(order) +
+                new MdDocument(MakeHeader(typeName, desc))
+                    .ToString();
         }
 
-        static private MdDocument MakeRecord(
+        static private string MakeRecord(
             string typeName,
             int order,
             IEnumerable<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> fields
         )
         {
-            return new MdDocument(
-                MakeHeader(typeName, order, desc)
-                .Append(new MdHeading("Fields", 5))
-                .Append(new MdTable(
-                    new MdTableRow("Name", "Type", "Description"),
-                    fields.Select(
-                        f => new MdTableRow(
-                            MakeSpan(MakePascalCase(f.Key)),
-                            MakeSpan(GenerateTypeLink(f.Value)),
-                            MakeSpan(f.Value.Desc.Replace("Optional. ", ""))
+            return MakeMetadata(order) +
+                new MdDocument(
+                    MakeHeader(typeName, desc)
+                    .Append(new MdHeading("Fields", 5))
+                    .Append(new MdTable(
+                        new MdTableRow("Name", "Type", "Description"),
+                        fields.Select(
+                            f => new MdTableRow(
+                                MakeSpan(MakePascalCase(f.Key)),
+                                MakeSpan(GenerateTypeLink(f.Value)),
+                                MakeSpan(f.Value.Desc.Replace("Optional. ", ""))
+                            )
                         )
-                    )
-                ))
-            );
+                    ))
+                ).ToString();
         }
 
-        static private MdDocument MakeUnion(
+        static private string MakeUnion(
             string typeName,
             int order,
             IEnumerable<string> desc,
@@ -161,23 +164,24 @@ namespace TelegramApiScraper
             Dictionary<string, ApiType> types
         )
         {
-            return new MdDocument(
-                MakeHeader(typeName, order, desc)
-                .Append(new MdHeading("Cases", 5))
-                .Append(new MdTable(
-                    new MdTableRow("Name", "Type", "Description"),
-                    cases.Select(
-                        f => new MdTableRow(
-                            MakeSpan(f.Key),
-                            MakeSpan(GenerateTypeLink(f.Value)),
-                            MakeSpan(types[f.Key].Desc[0])
-                        )
-                    )
-                ))
-            );
+            return MakeMetadata(order) +
+                new MdDocument(
+                    MakeHeader(typeName, desc)
+                        .Append(new MdHeading("Cases", 5))
+                        .Append(new MdTable(
+                            new MdTableRow("Name", "Type", "Description"),
+                            cases.Select(
+                                f => new MdTableRow(
+                                    MakeSpan(f.Key),
+                                    MakeSpan(GenerateTypeLink(f.Value)),
+                                    MakeSpan(types[f.Key].Desc[0])
+                                )
+                            )
+                        ))
+                ).ToString();
         }
 
-        static private MdDocument MakeMethod(
+        static private string MakeMethod(
             string methodName,
             int order,
             List<string> desc,
@@ -187,7 +191,7 @@ namespace TelegramApiScraper
         )
         {
             var doc = new MdDocument(
-                MakeHeader(methodName, order, desc)
+                MakeHeader(methodName, desc)
             );
 
             var comparison = StringComparison.OrdinalIgnoreCase;
@@ -240,7 +244,7 @@ namespace TelegramApiScraper
                 ));
             }
 
-            return doc;
+            return MakeMetadata(order) + doc.ToString();
         }
 
         static private HashSet<string> CollectPrimitives(Data data)
@@ -331,7 +335,7 @@ namespace TelegramApiScraper
             CleanDirectory(methodsDir, update);
 
             var primitives = CollectPrimitives(data);
-            var emptyDoc = MakePrimitive().ToString();
+            var emptyDoc = MakePrimitive();
 
             foreach (var primitive in primitives)
             {
@@ -353,8 +357,7 @@ namespace TelegramApiScraper
 
                             SaveFile(
                                 fileName,
-                                MakeStub(typeName, type.Order, type.Desc)
-                                .ToString(),
+                                MakeStub(typeName, type.Order, type.Desc),
                                 update
                             );
                         }
@@ -374,8 +377,7 @@ namespace TelegramApiScraper
                                     type.Order,
                                     type.Desc,
                                     type.Fields
-                                )
-                                .ToString(),
+                                ),
                                 update
                             );
                         }
@@ -396,8 +398,7 @@ namespace TelegramApiScraper
                                     type.Desc,
                                     type.Fields,
                                     data.Types
-                                )
-                                .ToString(),
+                                ),
                                 update
                             );
                         }
@@ -423,8 +424,7 @@ namespace TelegramApiScraper
                         method.Fields,
                         data.Types,
                         primitives
-                    )
-                    .ToString(),
+                    ),
                     update
                 );
             }
