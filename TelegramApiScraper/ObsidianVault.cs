@@ -79,6 +79,26 @@ namespace TelegramApiScraper
                 .Replace(" ", string.Empty);
         }
 
+        static private string CleanRecordDesc(string desc)
+        {
+            if (desc.Contains("64 bit"))
+            {
+                var start = desc.IndexOf(" This identifier");
+                var end = desc.IndexOf(" Returned");
+
+                desc = desc[start..end];
+            }
+
+            if (desc.Contains("64-bit"))
+            {
+                var start = desc.IndexOf(" This number");
+
+                desc = desc[ .. start];
+            }
+
+            return desc;
+        }
+
         static private string GenerateTypeLink(
             ApiField field,
             bool isParam = false
@@ -149,7 +169,7 @@ namespace TelegramApiScraper
                             f => new MdTableRow(
                                 MakeSpan(MakePascalCase(f.Key)),
                                 MakeSpan(GenerateTypeLink(f.Value)),
-                                MakeSpan(f.Value.Desc)
+                                MakeSpan(CleanRecordDesc(f.Value.Desc))
                             )
                         )
                     ))
