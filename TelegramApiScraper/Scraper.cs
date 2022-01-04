@@ -14,10 +14,12 @@ namespace TelegramApiScraper
                 .Replace('>', '}')
                 .Replace("Optional. ", "");
 
-            return text.EndsWith(".")
-                ? text
-                : text + "."
-                ;
+            if (!text.EndsWith('.') && !text.EndsWith(':'))
+            {
+                text += ".";
+            }
+
+            return text;
         }
         static internal Data Scrape()
         {
