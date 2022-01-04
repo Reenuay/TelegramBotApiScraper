@@ -79,8 +79,30 @@ namespace TelegramApiScraper
                 .Replace(" ", string.Empty);
         }
 
-        static private string CleanRecordDesc(string desc)
+        static private string CleanDesc(string desc)
         {
+            desc = desc.Replace(", see more on currencies", "");
+
+            desc = desc.Replace(
+                " See formatting options for more details.",
+                ""
+            );
+
+            desc = desc.Replace(
+                " See Setting up a bot for more details.",
+                ""
+            );
+
+            desc = desc.Replace(
+                " See Linking your domain to the bot for more details.",
+                ""
+            );
+
+            desc = desc.Replace(
+                " See our self-signed guide for details.",
+                ""
+            );
+
             if (desc.Contains("64 bit"))
             {
                 var start = desc.IndexOf(" This identifier");
@@ -101,6 +123,14 @@ namespace TelegramApiScraper
                 var start = desc.IndexOf(" More about");
 
                 desc = desc[..start];
+            }
+
+            if (desc.Contains(" More info"))
+            {
+                var start = desc.IndexOf(" More info");
+                var end = desc.IndexOf("»") + 2;
+
+                desc = desc[..start] + desc[end .. ];
             }
 
             return desc;
@@ -176,7 +206,7 @@ namespace TelegramApiScraper
                             f => new MdTableRow(
                                 MakeSpan(MakePascalCase(f.Key)),
                                 MakeSpan(GenerateTypeLink(f.Value)),
-                                MakeSpan(CleanRecordDesc(f.Value.Desc))
+                                MakeSpan(CleanDesc(f.Value.Desc))
                             )
                         )
                     ))
@@ -265,7 +295,7 @@ namespace TelegramApiScraper
                             MakeSpan(MakePascalCase(p.Key)),
                             MakeSpan(GenerateTypeLink(p.Value, true)),
                             MakeSpan(p.Value.Required ? "Yes" : "No"),
-                            MakeSpan(p.Value.Desc)
+                            MakeSpan(CleanDesc(p.Value.Desc))
                         )
                     )
                 ));
