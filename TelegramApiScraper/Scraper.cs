@@ -6,6 +6,19 @@ namespace TelegramApiScraper
 {
     static internal class Scraper
     {
+        static private string FormatDescription(string text)
+        {
+            text = text
+                .Replace("  ", " ")
+                .Replace('<', '{')
+                .Replace('>', '}')
+                .Replace("Optional. ", "");
+
+            return text.EndsWith(".")
+                ? text
+                : text + "."
+                ;
+        }
         static internal Data Scrape()
         {
             var address = @"https://core.telegram.org/bots/api";
@@ -63,11 +76,7 @@ namespace TelegramApiScraper
                         case "p":
                         case "blockquote":
                             {
-                                type.Desc.Add(
-                                    docText.EndsWith(".")
-                                        ? docText
-                                        : docText + "."
-                                );
+                                type.Desc.Add(FormatDescription(docText));
                             }
 
                             break;
@@ -115,9 +124,7 @@ namespace TelegramApiScraper
                                         ) == "Yes";
                                         fieldDesc = HtmlEntity.DeEntitize(
                                             tds[3].InnerText
-                                        )
-                                        .Replace('<', '{')
-                                        .Replace('>', '}');
+                                        );
                                     }
                                     else
                                     {
@@ -129,18 +136,13 @@ namespace TelegramApiScraper
                                         );
                                         fieldDesc = HtmlEntity.DeEntitize(
                                             tds[2].InnerText
-                                        )
-                                        .Replace("  ", " ")
-                                        .Replace('<', '{')
-                                        .Replace('>', '}');
+                                        );
 
-                                        fieldRequired = !fieldDesc.StartsWith("Optional.");
+                                        fieldRequired =
+                                            !fieldDesc.StartsWith("Optional.");
                                     }
 
-                                    fieldDesc = fieldDesc.EndsWith(".")
-                                        ? fieldDesc
-                                        : fieldDesc + "."
-                                        ;
+                                    fieldDesc = FormatDescription(fieldDesc);
 
                                     var field = new ApiField
                                     {

@@ -149,7 +149,7 @@ namespace TelegramApiScraper
                             f => new MdTableRow(
                                 MakeSpan(MakePascalCase(f.Key)),
                                 MakeSpan(GenerateTypeLink(f.Value)),
-                                MakeSpan(f.Value.Desc.Replace("Optional. ", ""))
+                                MakeSpan(f.Value.Desc)
                             )
                         )
                     ))
