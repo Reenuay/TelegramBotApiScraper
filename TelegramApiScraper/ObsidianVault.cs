@@ -262,13 +262,10 @@ namespace TelegramApiScraper
             HashSet<string> primitives
         )
         {
-            var doc = new MdDocument(
-                MakeHeader(methodName, desc)
-            );
-
             var comparison = StringComparison.OrdinalIgnoreCase;
 
-            var returnSentence = desc
+            (var returnSentence, var returnIndex) =
+                desc
                 .SelectMany(d =>
                     d.Split('.', StringSplitOptions.RemoveEmptyEntries)
                 )
@@ -276,29 +273,60 @@ namespace TelegramApiScraper
                     s.Contains("is returned", comparison)
                     || s.Contains("returns", comparison)
                 )
-                .First()
-                .Trim();
+                .Select((t, i) => (t, i))
+                .First();
+
+            var isArray = returnSentence
+                .Contains("array of", comparison);
+
+            if (isArray)
+            {
+                desc[returnIndex]
+                    = desc[returnIndex].Replace("array of ", "", comparison);
+            }
 
             var returnTypes =
+                returnSentence
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(t => (t, Canonicalize(t, "")))
+                    .Where(t => {
+                        (var a, var c) = t;
+                        return
+                            types.ContainsKey(c) || primitives.Contains(c);
+                    });
+
+            var returnTypesText =
                 string.Join(
                     " | ",
-                    returnSentence
-                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(t => Canonicalize(t, ""))
-                        .Where(t =>
-                            types.ContainsKey(t) || primitives.Contains(t)
-                        )
-                        .Select(t =>
-                            $"[[{t}]]" +
-                                (returnSentence
-                                    .Contains("array of", comparison)
-                                    ? " [[list]]"
-                                    : "")
-                        )
+                    returnTypes.Select(t => {
+                        (var a, var c) = t;
+                        return
+                            $"[[{c}]]" +
+                            (isArray ? " [[list]]" : "");
+                    })
                 );
 
+            foreach (var t in returnTypes)
+            {
+                (var a, var c) = t;
+
+                if (isArray)
+                {
+                    c += " list";
+                }
+
+                desc[returnIndex] =
+                    desc[returnIndex]
+                    .Replace(a, c)
+                    .Replace("objects", "");
+            }
+
+            var doc = new MdDocument(
+                MakeHeader(methodName, desc)
+            );
+
             doc.Root.Add(new MdHeading("Returns", 5));
-            doc.Root.Add(new MdParagraph(MakeSpan(returnTypes)));
+            doc.Root.Add(new MdParagraph(MakeSpan(returnTypesText)));
             doc.Root.Add(new MdThematicBreak());
 
             if (parameters is not null) {
