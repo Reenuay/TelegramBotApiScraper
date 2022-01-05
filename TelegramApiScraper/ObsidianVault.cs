@@ -92,7 +92,7 @@ namespace TelegramApiScraper
                 {
                     words[i] = MakePascalCase(words[i]);
                 }
-                else if (methodNames.Contains(words[i]))
+                else if (methodNames.Any(n => words[i].StartsWith(n)))
                 {
                     words[i] = char.ToUpper(words[i][0]) + words[i][1..];
                 }
