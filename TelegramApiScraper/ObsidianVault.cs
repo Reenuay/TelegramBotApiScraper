@@ -79,6 +79,21 @@ namespace TelegramApiScraper
                 .Replace(" ", string.Empty);
         }
 
+        static private string WordsToPascalCase(string desc)
+        {
+            var words = desc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            for (var i = 0; i < words.Length; i++)
+            {
+                if (words[i].Contains("_"))
+                {
+                    words[i] = MakePascalCase(words[i]);
+                }
+            }
+
+            return string.Join(' ', words);
+        }
+
         static private string CleanDesc(string desc)
         {
             desc = desc.Replace(", see more on currencies", "");
@@ -133,7 +148,7 @@ namespace TelegramApiScraper
                 desc = desc[..start] + desc[end .. ];
             }
 
-            return desc;
+            return WordsToPascalCase(desc);
         }
 
         static private string GenerateTypeLink(
@@ -155,7 +170,7 @@ namespace TelegramApiScraper
 
         static private MdRawMarkdownSpan MakeSpan(string content)
         {
-            return new MdRawMarkdownSpan(content);
+            return new MdRawMarkdownSpan(WordsToPascalCase(content));
         }
 
         static private IEnumerable<MdBlock> MakeHeader(
