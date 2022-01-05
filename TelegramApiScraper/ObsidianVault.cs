@@ -79,7 +79,10 @@ namespace TelegramApiScraper
                 .Replace(" ", string.Empty);
         }
 
-        static private string WordsToPascalCase(string desc)
+        static private string WordsToPascalCase(
+            string desc,
+            HashSet<string> methodNames
+        )
         {
             var words = desc.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -89,12 +92,19 @@ namespace TelegramApiScraper
                 {
                     words[i] = MakePascalCase(words[i]);
                 }
+                else if (methodNames.Contains(words[i]))
+                {
+                    words[i] = char.ToUpper(words[i][0]) + words[i][1..];
+                }
             }
 
             return string.Join(' ', words);
         }
 
-        static private string CleanDesc(string desc)
+        static private string CleanDesc(
+            string desc,
+            HashSet<string> methodNames
+        )
         {
             desc = desc.Replace(", see more on currencies", "");
 
@@ -148,7 +158,7 @@ namespace TelegramApiScraper
                 desc = desc[..start] + desc[end .. ];
             }
 
-            return WordsToPascalCase(desc);
+            return WordsToPascalCase(desc, methodNames);
         }
 
         static private string GenerateTypeLink(
@@ -170,7 +180,7 @@ namespace TelegramApiScraper
 
         static private MdRawMarkdownSpan MakeSpan(string content)
         {
-            return new MdRawMarkdownSpan(WordsToPascalCase(content));
+            return new MdRawMarkdownSpan(content);
         }
 
         static private IEnumerable<MdBlock> MakeHeader(
@@ -208,12 +218,16 @@ namespace TelegramApiScraper
             string typeName,
             int order,
             IEnumerable<string> desc,
-            IEnumerable<KeyValuePair<string, ApiField>> fields
+            IEnumerable<KeyValuePair<string, ApiField>> fields,
+            HashSet<string> methodNames
         )
         {
             return MakeMetadata(order) +
                 new MdDocument(
-                    MakeHeader(typeName, desc)
+                    MakeHeader(
+                        typeName,
+                        desc.Select(d => CleanDesc(d, methodNames))
+                    )
                     .Append(new MdHeading("Fields", 5))
                     .Append(new MdTable(
                         new MdTableRow("Name", "Type", "Description"),
@@ -221,7 +235,7 @@ namespace TelegramApiScraper
                             f => new MdTableRow(
                                 MakeSpan(MakePascalCase(f.Key)),
                                 MakeSpan(GenerateTypeLink(f.Value)),
-                                MakeSpan(CleanDesc(f.Value.Desc))
+                                MakeSpan(CleanDesc(f.Value.Desc, methodNames))
                             )
                         )
                     ))
@@ -246,7 +260,12 @@ namespace TelegramApiScraper
                                 f => new MdTableRow(
                                     MakeSpan(f.Key),
                                     MakeSpan(GenerateTypeLink(f.Value)),
-                                    MakeSpan(types[f.Key].Desc[0])
+                                    MakeSpan(
+                                        CleanDesc(
+                                            types[f.Key].Desc[0],
+                                            new HashSet<string>()
+                                        )
+                                    )
                                 )
                             )
                         ))
@@ -259,7 +278,8 @@ namespace TelegramApiScraper
             List<string> desc,
             IEnumerable<KeyValuePair<string, ApiField>> parameters,
             Dictionary<string, ApiType> types,
-            HashSet<string> primitives
+            HashSet<string> primitives,
+            HashSet<string> methodNames
         )
         {
             var comparison = StringComparison.OrdinalIgnoreCase;
@@ -329,7 +349,10 @@ namespace TelegramApiScraper
             }
 
             var doc = new MdDocument(
-                MakeHeader(methodName, desc)
+                MakeHeader(
+                    methodName,
+                    desc.Select(d => CleanDesc(d, methodNames))
+                )
             );
 
             doc.Root.Add(new MdHeading("Returns", 5));
@@ -345,7 +368,7 @@ namespace TelegramApiScraper
                             MakeSpan(MakePascalCase(p.Key)),
                             MakeSpan(GenerateTypeLink(p.Value, true)),
                             MakeSpan(p.Value.Required ? "Yes" : "No"),
-                            MakeSpan(CleanDesc(p.Value.Desc))
+                            MakeSpan(CleanDesc(p.Value.Desc, methodNames))
                         )
                     )
                 ));
@@ -403,6 +426,18 @@ namespace TelegramApiScraper
             return set;
         }
 
+        static private HashSet<string> CollectMethods(Data data)
+        {
+            var set = new HashSet<string>();
+
+            foreach (var (methodName, _) in data.Methods)
+            {
+                set.Add(methodName);
+            }
+
+            return set;
+        }
+
         static private void CleanDirectory(string path, bool update)
         {
             if (!update && Directory.Exists(path))
@@ -451,6 +486,8 @@ namespace TelegramApiScraper
                 SaveFile(fileName, emptyDoc, update);
             }
 
+            var methodNames = CollectMethods(data);
+
             foreach (var (typeName, type) in data.Types)
             {
                 switch (type.Kind)
@@ -483,7 +520,8 @@ namespace TelegramApiScraper
                                     typeName,
                                     type.Order,
                                     type.Desc,
-                                    type.Fields
+                                    type.Fields,
+                                    methodNames
                                 ),
                                 update
                             );
@@ -530,7 +568,8 @@ namespace TelegramApiScraper
                         method.Desc,
                         method.Fields,
                         data.Types,
-                        primitives
+                        primitives,
+                        methodNames
                     ),
                     update
                 );
