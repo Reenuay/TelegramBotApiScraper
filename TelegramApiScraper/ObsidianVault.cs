@@ -88,7 +88,7 @@ namespace TelegramApiScraper
 
             for (var i = 0; i < words.Length; i++)
             {
-                if (words[i].Contains("_"))
+                if (words[i].Contains("_") && !words[i].Contains("/"))
                 {
                     words[i] = MakePascalCase(words[i]);
                 }
