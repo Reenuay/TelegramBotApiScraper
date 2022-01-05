@@ -318,7 +318,7 @@ namespace TelegramApiScraper
                 desc[returnIndex] =
                     desc[returnIndex]
                     .Replace(a, c)
-                    .Replace("objects", "");
+                    .Replace(" objects", "");
             }
 
             var doc = new MdDocument(
