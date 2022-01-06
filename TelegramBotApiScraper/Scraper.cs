@@ -6,24 +6,6 @@ namespace TelegramBotApiScraper
 {
     static internal class Scraper
     {
-        static private string FormatDescription(string text)
-        {
-            text = text
-                .Replace("\n\n", " ")
-                .Replace("\n", " ")
-                .Replace("  ", " ")
-                .Replace('<', '{')
-                .Replace('>', '}')
-                .Replace("Optional. ", "");
-
-            if (!text.EndsWith('.') && !text.EndsWith(':'))
-            {
-                text += ".";
-            }
-
-            return text;
-        }
-
         static internal List<ApiUnit> GetTelegramBotApiUnits()
         {
             var address = @"https://core.telegram.org/bots/api";
