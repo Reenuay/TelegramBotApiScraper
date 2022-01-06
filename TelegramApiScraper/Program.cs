@@ -42,7 +42,7 @@ namespace TelegramBotApiScraper
         {
             Console.WriteLine("Getting data from Telegram servers...");
 
-            var units = Scraper.Scrape();
+            var units = Scraper.GetTelegramBotApiUnits();
 
             Console.WriteLine("Data scraped successfuly!");
             Console.WriteLine();
