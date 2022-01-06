@@ -1,4 +1,4 @@
-# TelegramApiScraper
+# TelegramBotApiScraper
 Telegram Bot Api Scraper
 
 ## Description
