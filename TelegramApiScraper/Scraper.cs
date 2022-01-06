@@ -192,6 +192,8 @@ namespace TelegramBotApiScraper
                 }
             }
 
+            _units = units;
+
             return units;
         }
     }
