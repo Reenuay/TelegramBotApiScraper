@@ -21,6 +21,7 @@ namespace TelegramApiScraper
 
             return text;
         }
+
         static internal Data Scrape()
         {
             var address = @"https://core.telegram.org/bots/api";
