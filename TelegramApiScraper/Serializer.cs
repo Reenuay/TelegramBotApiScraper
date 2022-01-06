@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -8,7 +9,7 @@ namespace TelegramApiScraper
 {
     static internal class Serializer
     {
-        static internal void SerializeTo(string filePath, Data data)
+        static internal void SerializeTo(string filePath, List<ApiUnit> units)
         {
             if (filePath is null)
             {
@@ -25,7 +26,7 @@ namespace TelegramApiScraper
                 WriteIndented = true
             };
 
-            var json = JsonSerializer.Serialize(data, options);
+            var json = JsonSerializer.Serialize(units, options);
 
             File.WriteAllText(filePath, json);
         }
