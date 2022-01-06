@@ -24,7 +24,7 @@ namespace TelegramBotApiScraper
             return text;
         }
 
-        static private List<ApiUnit> GetTelegramBotApiUnits()
+        static internal List<ApiUnit> GetTelegramBotApiUnits()
         {
             var address = @"https://core.telegram.org/bots/api";
 
