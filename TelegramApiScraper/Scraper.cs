@@ -6,8 +6,6 @@ namespace TelegramBotApiScraper
 {
     static internal class Scraper
     {
-        static private List<ApiUnit> _units;
-
         static private string FormatDescription(string text)
         {
             text = text
@@ -26,12 +24,7 @@ namespace TelegramBotApiScraper
             return text;
         }
 
-        static internal List<ApiUnit> GetTelegramBotApiUnits()
-        {
-            return _units ?? Scrape();
-        }
-
-        static private List<ApiUnit> Scrape()
+        static private List<ApiUnit> GetTelegramBotApiUnits()
         {
             var address = @"https://core.telegram.org/bots/api";
 
@@ -191,8 +184,6 @@ namespace TelegramBotApiScraper
                     unitName = docText;
                 }
             }
-
-            _units = units;
 
             return units;
         }
