@@ -5,7 +5,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TelegramApiScraper
+namespace TelegramBotApiScraper
 {
     static internal class Serializer
     {

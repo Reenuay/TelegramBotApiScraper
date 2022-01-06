@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TelegramApiScraper
+namespace TelegramBotApiScraper
 {
     internal class Program
     {

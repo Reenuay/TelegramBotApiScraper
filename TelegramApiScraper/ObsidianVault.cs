@@ -6,7 +6,7 @@ using System.IO;
 using Grynwald.MarkdownGenerator;
 using System.Globalization;
 
-namespace TelegramApiScraper
+namespace TelegramBotApiScraper
 {
     static internal class ObsidianVault
     {

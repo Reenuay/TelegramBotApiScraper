@@ -1,4 +1,4 @@
-﻿namespace TelegramApiScraper
+﻿namespace TelegramBotApiScraper
 {
     internal class ApiField
     {
