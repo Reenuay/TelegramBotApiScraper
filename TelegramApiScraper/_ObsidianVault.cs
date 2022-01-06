@@ -8,7 +8,7 @@ using System.Globalization;
 
 namespace TelegramBotApiScraper
 {
-    static internal class ObsidianVault
+    static internal class _ObsidianVault
     {
         static private string Canonicalize(string typeName, string desc)
         {

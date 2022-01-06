@@ -5,39 +5,6 @@ namespace TelegramBotApiScraper
 {
     internal class Program
     {
-        static private void SaveJson(List<ApiUnit> units)
-        {
-            Console.WriteLine("Enter filename...");
-
-            var path = Console.ReadLine();
-
-            Serializer.SerializeTo(path, units);
-
-            Console.WriteLine("Done!");
-        }
-
-        static private void FillVault(Data data)
-        {
-            Console.WriteLine("Enter vault directory path...");
-
-            var path = Console.ReadLine();
-
-            ObsidianVault.Fill(path, data);
-
-            Console.WriteLine("Done!");
-        }
-
-        static private void UpdateVault(Data data)
-        {
-            Console.WriteLine("Enter vault directory path...");
-
-            var path = Console.ReadLine();
-
-            ObsidianVault.Fill(path, data, true);
-
-            Console.WriteLine("Done!");
-        }
-
         static private void Main()
         {
             Console.WriteLine("Getting data from Telegram servers...");
@@ -84,6 +51,39 @@ namespace TelegramBotApiScraper
             Console.WriteLine();
             Console.WriteLine("Press enter to exit...");
             Console.ReadLine();
+        }
+
+        static private void SaveJson(List<ApiUnit> units)
+        {
+            Console.WriteLine("Enter filename...");
+
+            var path = Console.ReadLine();
+
+            Serializer.SerializeTo(path, units);
+
+            Console.WriteLine("Done!");
+        }
+
+        static private void FillVault(Data data)
+        {
+            Console.WriteLine("Enter vault directory path...");
+
+            var path = Console.ReadLine();
+
+            _ObsidianVault.Fill(path, data);
+
+            Console.WriteLine("Done!");
+        }
+
+        static private void UpdateVault(Data data)
+        {
+            Console.WriteLine("Enter vault directory path...");
+
+            var path = Console.ReadLine();
+
+            _ObsidianVault.Fill(path, data, true);
+
+            Console.WriteLine("Done!");
         }
     }
 }
