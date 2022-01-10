@@ -2,16 +2,16 @@
 
 namespace TelegramBotApiScraper
 {
-    internal record ApiUnit
+    internal record ApiObject
     {
-        public int Order { get; init; }
-
         public string Name { get; init; } = "";
 
-        public string TypeName { get; init; } = "";
+        public string Type { get; init; } = "";
+
+        public bool Required { get; init; }
 
         public List<string> Description { get; init; } = new();
 
-        public List<ApiUnit> Units { get; init; } = new();
+        public List<ApiObject> Properties { get; init; } = new();
     }
 }

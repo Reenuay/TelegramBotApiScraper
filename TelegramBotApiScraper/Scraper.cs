@@ -6,7 +6,7 @@ namespace TelegramBotApiScraper
 {
     static internal class Scraper
     {
-        static internal List<ApiUnit> GetTelegramBotApiUnits()
+        static internal List<ApiObject> GetTelegramBotApiObjects()
         {
             var address = @"https://core.telegram.org/bots/api";
 
@@ -20,19 +20,18 @@ namespace TelegramBotApiScraper
                 .ChildNodes
                 .Where(d => !d.Name.StartsWith('#'));
 
-            var units = new List<ApiUnit>();
+            var objects = new List<ApiObject>();
 
-            var unitOrder = 0;
-            var unitName = (string)null;
-            var unitDesc = new List<string>();
-            var unitUnits = new List<ApiUnit>();
+            var objectName = (string)null;
+            var objectDesc = new List<string>();
+            var objectProperties = new List<ApiObject>();
 
             foreach (var doc in docs)
             {
                 var docName = doc.Name;
                 var docText = HtmlEntity.DeEntitize(doc.InnerText);
 
-                if (unitName is not null)
+                if (objectName is not null)
                 {
                     switch (docName)
                     {
@@ -40,19 +39,17 @@ namespace TelegramBotApiScraper
                         case "h3":
                         case "h4":
                             {
-                                units.Add(new ApiUnit
+                                objects.Add(new ApiObject
                                 {
-                                    Order = unitOrder,
-                                    Name = unitName,
-                                    TypeName = unitName,
-                                    Description = unitDesc,
-                                    Units = unitUnits
+                                    Name = objectName,
+                                    Type = objectName,
+                                    Description = objectDesc,
+                                    Properties = objectProperties
                                 });
 
-                                unitOrder++;
-                                unitName = null;
-                                unitDesc = new List<string>();
-                                unitUnits = new List<ApiUnit>();
+                                objectName = null;
+                                objectDesc = new List<string>();
+                                objectProperties = new List<ApiObject>();
                             }
 
                             break;
@@ -60,7 +57,7 @@ namespace TelegramBotApiScraper
                         case "p":
                         case "blockquote":
                             {
-                                unitDesc.Add(docText);
+                                objectDesc.Add(docText);
                             }
 
                             break;
@@ -71,63 +68,54 @@ namespace TelegramBotApiScraper
                                     .Element("tbody")
                                     .Elements("tr");
 
-                                var fieldOrder = 0;
-
                                 foreach (var row in rows)
                                 {
                                     var tds = row
                                         .Elements("td")
                                         .ToArray();
 
-                                    var fieldName = (string)null;
-                                    var fieldType = (string)null;
-                                    var fieldDesc = (string)null;
+                                    var propertyName = (string)null;
+                                    var propertyType = (string)null;
+                                    var propertyReq = true;
+                                    var propertyDesc = (string)null;
 
-                                    if (tds.Length == 4)
+                                    if (tds.Length == 3)
                                     {
-                                        var required = HtmlEntity.DeEntitize(
-                                            tds[2].InnerText
-                                        )
-                                            == "Yes"
-                                            ? ""
-                                            : "Optional. "
-                                            ;
-
-                                        fieldName = HtmlEntity.DeEntitize(
+                                        propertyName = HtmlEntity.DeEntitize(
                                             tds[0].InnerText
                                         );
-                                        fieldType = HtmlEntity.DeEntitize(
+                                        propertyType = HtmlEntity.DeEntitize(
                                             tds[1].InnerText
                                         );
-                                        fieldDesc = required +
-                                            HtmlEntity.DeEntitize(
-                                                tds[3].InnerText
-                                            );
+                                        propertyDesc = HtmlEntity.DeEntitize(
+                                            tds[2].InnerText
+                                        );
                                     }
                                     else
                                     {
-                                        fieldName = HtmlEntity.DeEntitize(
+                                        propertyName = HtmlEntity.DeEntitize(
                                             tds[0].InnerText
                                         );
-                                        fieldType = HtmlEntity.DeEntitize(
+                                        propertyType = HtmlEntity.DeEntitize(
                                             tds[1].InnerText
                                         );
-                                        fieldDesc = HtmlEntity.DeEntitize(
+                                        propertyReq = HtmlEntity.DeEntitize(
                                             tds[2].InnerText
+                                        ) == "Yes";
+                                        propertyDesc = HtmlEntity.DeEntitize(
+                                            tds[3].InnerText
                                         );
                                     }
 
-                                    var field = new ApiUnit
+                                    var property = new ApiObject
                                     {
-                                        Order = fieldOrder,
-                                        Name = fieldName,
-                                        TypeName = fieldType,
-                                        Description = { fieldDesc }
+                                        Name = propertyName,
+                                        Type = propertyType,
+                                        Required = propertyReq,
+                                        Description = { propertyDesc }
                                     };
 
-                                    unitUnits.Add(field);
-
-                                    fieldOrder++;
+                                    objectProperties.Add(property);
                                 }
                             }
 
@@ -135,24 +123,21 @@ namespace TelegramBotApiScraper
 
                         case "ul":
                             {
+                                var list = doc.Elements("li");
 
-                                var cases = doc.Elements("li");
-                                var caseOrder = 0;
-
-                                foreach (var _case in cases)
+                                foreach (var el in list)
                                 {
-                                    var caseName =
-                                        HtmlEntity.DeEntitize(_case.InnerText);
+                                    var propertyName =
+                                        HtmlEntity.DeEntitize(
+                                            el.InnerText
+                                        );
 
-                                    var field = new ApiUnit
+                                    var property = new ApiObject
                                     {
-                                        Order = caseOrder,
-                                        Name = caseName
+                                        Name = propertyName
                                     };
 
-                                    unitUnits.Add(field);
-
-                                    caseOrder++;
+                                    objectProperties.Add(property);
                                 }
 
                             }
@@ -163,11 +148,11 @@ namespace TelegramBotApiScraper
 
                 if (docName is "h4" && !docText.Contains(' '))
                 {
-                    unitName = docText;
+                    objectName = docText;
                 }
             }
 
-            return units;
+            return objects;
         }
     }
 }
