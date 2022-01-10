@@ -18,11 +18,80 @@ namespace TelegramBotApiScraper
 
         public static void Create(string vaultPath, List<ApiObject> objects)
         {
+            (
+                var primitives,
+                var stubs,
+                var records,
+                var unions,
+                var methods
+            )
+            = ParseApi(objects);
+
+            (
+                var primitivesDir,
+                var stubsDir,
+                var recordsDir,
+                var unionsDir,
+                var methodsDir
+            )
+            = ConstructsPaths(vaultPath);
+
+            Saver.CleanDirectory(primitivesDir);
+            Saver.CleanDirectory(stubsDir);
+            Saver.CleanDirectory(recordsDir);
+            Saver.CleanDirectory(unionsDir);
+            Saver.CleanDirectory(methodsDir);
+
+            primitives.SaveToDirectory(primitivesDir);
+            stubs.SaveToDirectory(stubsDir);
+            records.SaveToDirectory(recordsDir);
+            unions.SaveToDirectory(unionsDir);
+            methods.SaveToDirectory(methodsDir);
+        }
+
+        public static void Update(string vaultPath, List<ApiObject> objects)
+        {
+            (
+                var primitives,
+                var stubs,
+                var records,
+                var unions,
+                var methods
+            )
+            = ParseApi(objects);
+
+            (
+                var primitivesDir,
+                var stubsDir,
+                var recordsDir,
+                var unionsDir,
+                var methodsDir
+            )
+            = ConstructsPaths(vaultPath);
+
+            primitives.SaveToDirectory(primitivesDir, true);
+            stubs.SaveToDirectory(stubsDir, true);
+            records.SaveToDirectory(recordsDir, true);
+            unions.SaveToDirectory(unionsDir, true);
+            methods.SaveToDirectory(methodsDir, true);
+        }
+
+        static private (
+            Dictionary<string, object>,
+            Dictionary<string, object>,
+            Dictionary<string, object>,
+            Dictionary<string, object>,
+            Dictionary<string, object>
+        ) ParseApi(
+            List<ApiObject> objects
+        )
+        {
             (var types, var methodNames, var primitiveNames) =
                 GetObjectInfo(objects);
 
             var typeNames = types.Keys.ToHashSet();
 
+            var primitives = new Dictionary<string, object>();
             var stubs = new Dictionary<string, object>();
             var records = new Dictionary<string, object>();
             var unions = new Dictionary<string, object>();
@@ -38,7 +107,8 @@ namespace TelegramBotApiScraper
                     .CleanDescription()
                     .CanonicalizeDescription(methodNames);
 
-                if (char.IsUpper(obj.Name[0])) {
+                if (char.IsUpper(obj.Name[0]))
+                {
                     if (obj.Properties.Any())
                     {
                         if (obj.Properties[0].Type != "")
@@ -149,6 +219,25 @@ namespace TelegramBotApiScraper
                 order++;
             }
 
+            foreach (var primitiveName in primitiveNames)
+            {
+                primitives.Add(primitiveName, new {
+                    type = "Primitive",
+                    name = primitiveName
+                });
+            }
+
+            return (primitives, stubs, records, unions, methods);
+        }
+
+        private static (
+            string,
+            string,
+            string,
+            string,
+            string
+        ) ConstructsPaths(string vaultPath)
+        {
             vaultPath = Path.Combine(vaultPath, "Api");
 
             var primitivesDir = Path.Combine(vaultPath, "Types", "Primitives");
@@ -157,31 +246,32 @@ namespace TelegramBotApiScraper
             var unionsDir = Path.Combine(vaultPath, "Types", "Unions");
             var methodsDir = Path.Combine(vaultPath, "Methods");
 
-            Saver.CleanDirectory(primitivesDir);
-            Saver.CleanDirectory(stubsDir);
-            Saver.CleanDirectory(recordsDir);
-            Saver.CleanDirectory(unionsDir);
-            Saver.CleanDirectory(methodsDir);
-
-            stubs.SaveToDirectory(stubsDir);
-            records.SaveToDirectory(recordsDir);
-            unions.SaveToDirectory(unionsDir);
-            methods.SaveToDirectory(methodsDir);
+            return (
+                primitivesDir,
+                stubsDir,
+                recordsDir,
+                unionsDir,
+                methodsDir
+            );
         }
 
         static private void SaveToDirectory(
             this Dictionary<string, object> files,
-            string directoryPath
+            string directoryPath,
+            bool update = false
         )
         {
             foreach (var (name, file) in files)
             {
                 var fileName = Path.Combine(directoryPath, $"{name}.md");
 
-                Saver.SaveFile(
-                    fileName,
-                    $"---\n{serializer.Serialize(file)}---"
-                );
+                if (!update || File.Exists(fileName))
+                {
+                    Saver.SaveFile(
+                        fileName,
+                        serializer.Serialize(file)
+                    );
+                }
             }
         }
 

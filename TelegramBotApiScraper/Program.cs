@@ -20,7 +20,7 @@ namespace TelegramBotApiScraper
             while (showChoice)
             {
                 Console.WriteLine("1 to save types to vault");
-                //Console.WriteLine("2 to update types in vault");
+                Console.WriteLine("2 to update types in vault");
 
                 var choice = Console.ReadLine();
 
@@ -31,10 +31,10 @@ namespace TelegramBotApiScraper
                         showChoice = false;
                         break;
 
-                    //case "2":
-                    //    UpdateVault(units);
-                    //    showChoice = false;
-                    //    break;
+                    case "2":
+                        UpdateVault(objects);
+                        showChoice = false;
+                        break;
 
                     default:
                         Console.WriteLine("Wrong choice, choose from list below:");
@@ -58,15 +58,15 @@ namespace TelegramBotApiScraper
             Console.WriteLine("Done!");
         }
 
-        //    static private void UpdateVault(Data data)
-        //    {
-        //        Console.WriteLine("Enter vault directory path...");
+        static private void UpdateVault(List<ApiObject> objects)
+        {
+            Console.WriteLine("Enter vault directory path...");
 
-        //        var path = Console.ReadLine();
+            var path = Console.ReadLine();
 
-        //        _ObsidianVault.Fill(path, data, true);
+            Vault.Update(path, objects);
 
-        //        Console.WriteLine("Done!");
-        //    }
+            Console.WriteLine("Done!");
+        }
     }
 }

@@ -21,7 +21,10 @@ namespace TelegramBotApiScraper
 
         public static void SaveFile(string path, string content)
         {
-            File.WriteAllText(path, content);
+            File.WriteAllText(
+                path,
+                $"---\n{content}---"
+            );
         }
     }
 }
