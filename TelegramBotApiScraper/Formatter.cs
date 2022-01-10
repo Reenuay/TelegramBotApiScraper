@@ -96,9 +96,9 @@ namespace TelegramBotApiScraper
             var level = typeName.GetArrayLevel();
             var optional = description.StartsWith("Optional.") ? 1 : 0;
 
-            return Enumerable.Repeat("option", optional)
+            return typeName.CleanType(description)
                 .Concat(Enumerable.Repeat("list", level))
-                .Concat(typeName.CleanType(description));
+                .Concat(Enumerable.Repeat("option", optional));
         }
 
         public static IEnumerable<string> CleanDescription(
@@ -221,14 +221,13 @@ namespace TelegramBotApiScraper
             var listLevel = returnSentence
                 .Contains("array of", _comparison) ? 1 : 0;
 
-            return Enumerable.Repeat("list", listLevel)
+            return returnSentence
+                .Split(' ', _splitOptions)
+                .Select(t => t.CanonicalizeType(""))
+                .Where(t => typeNames.Contains(t)
+                        || primitiveNames.Contains(t))
                 .Concat(
-                    returnSentence
-                        .Split(' ', _splitOptions)
-                        .Select(t => t.CanonicalizeType(""))
-                        .Where(t =>
-                                typeNames.Contains(t)
-                                || primitiveNames.Contains(t))
+                    Enumerable.Repeat("list", listLevel)
                 );
         }
 
