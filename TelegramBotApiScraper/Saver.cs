@@ -25,7 +25,7 @@ namespace TelegramBotApiScraper
                 path,
                 $"---\n{content}---\n"
                 + "```dataviewjs\n"
-                + "dv.view('./');\n"
+                + "dv.view('');\n"
                 + "```\n"
             );
         }
