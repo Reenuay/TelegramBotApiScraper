@@ -154,7 +154,7 @@ namespace TelegramBotApiScraper
 
                                 cases.Add(new {
                                     name = @case.Name,
-                                    type = @case.Name,
+                                    type = new string[] { @case.Name },
                                     description = caseDescription
                                 });
                             }
