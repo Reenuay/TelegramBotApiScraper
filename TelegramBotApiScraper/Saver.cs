@@ -23,7 +23,10 @@ namespace TelegramBotApiScraper
         {
             File.WriteAllText(
                 path,
-                $"---\n{content}---"
+                $"---\n{content}---\n"
+                + "```dataviewjs\n"
+                + "dv.view();\n"
+                + "```\n"
             );
         }
     }
