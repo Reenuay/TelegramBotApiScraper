@@ -24,8 +24,8 @@ namespace TelegramBotApiScraper
             File.WriteAllText(
                 path,
                 $"---\n{content}---\n\n"
-                + "```dataviewjs\n"
-                + "dv.view('Dataview');\n"
+                + "```jsx:\n"
+                + "<ApiObject />\n"
                 + "```\n"
             );
         }
