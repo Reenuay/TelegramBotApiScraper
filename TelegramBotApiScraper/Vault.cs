@@ -120,7 +120,10 @@ namespace TelegramBotApiScraper
                                 var fieldName = field.Name.ToPascalCase();
 
                                 var fieldType = field.Type
-                                    .ConstructTypeDef(field.Description[0]);
+                                    .ConstructTypeDef(
+                                        fieldName,
+                                        field.Description[0]
+                                    );
 
                                 var fieldDescription = field.Description
                                     .CleanDescription()
@@ -187,7 +190,10 @@ namespace TelegramBotApiScraper
                         var parameterName = parameter.Name.ToPascalCase();
 
                         var parameterType = parameter.Type
-                            .ConstructTypeDef(parameter.Description[0]);
+                            .ConstructTypeDef(
+                                parameterName,
+                                parameter.Description[0]
+                            );
 
                         var parameterDescription = parameter.Description
                             .CleanDescription()
@@ -307,7 +313,10 @@ namespace TelegramBotApiScraper
                 {
                     var propertyTypes = property
                         .Type
-                        .CleanType(property.Description.FirstOrDefault() ?? "");
+                        .CleanType(
+                            property.Name,
+                            property.Description.FirstOrDefault() ?? ""
+                        );
 
                     foreach (
                         var primitive

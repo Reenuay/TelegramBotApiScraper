@@ -32,6 +32,7 @@ namespace TelegramBotApiScraper
 
         static private string CanonicalizeType(
             this string typeName,
+            string property,
             string description
         )
         {
@@ -41,6 +42,7 @@ namespace TelegramBotApiScraper
                 "Integer" =>
                     description.Contains("64-bit")
                     || description.Contains("64 bit")
+                    || property.EndsWith("MessageId")
                     ? "int64"
                     : (description.Contains("Unix") ? "DateTime" : "int"),
                 "Float" => "float",
@@ -79,24 +81,26 @@ namespace TelegramBotApiScraper
 
         public static IEnumerable<string> CleanType(
             this string typeName,
+            string property,
             string description
         )
         {
             return typeName
                 .DeArrayify()
                 .SplitTypeNames()
-                .Select(t => CanonicalizeType(t, description));
+                .Select(t => CanonicalizeType(t, property, description));
         }
 
         public static IEnumerable<string> ConstructTypeDef(
             this string typeName,
+            string property,
             string description
         )
         {
             var level = typeName.GetArrayLevel();
             var optional = description.StartsWith("Optional.") ? 1 : 0;
 
-            return typeName.CleanType(description)
+            return typeName.CleanType(property, description)
                 .Concat(Enumerable.Repeat("list", level))
                 .Concat(Enumerable.Repeat("option", optional));
         }
@@ -223,7 +227,7 @@ namespace TelegramBotApiScraper
 
             return returnSentence
                 .Split(' ', _splitOptions)
-                .Select(t => t.CanonicalizeType(""))
+                .Select(t => t.CanonicalizeType("", ""))
                 .Where(t => typeNames.Contains(t)
                         || primitiveNames.Contains(t))
                 .Concat(
@@ -251,7 +255,7 @@ namespace TelegramBotApiScraper
                     ' ',
                     returnSentence
                         .Split(' ')
-                        .Select(t => t.CanonicalizeType(""))
+                        .Select(t => t.CanonicalizeType("", ""))
                 );
 
             return description
