@@ -97,8 +97,6 @@ namespace TelegramBotApiScraper
             var unions = new Dictionary<string, object>();
             var methods = new Dictionary<string, object>();
 
-            var order = 1;
-
             foreach (var obj in objects)
             {
                 var name = obj.Name.ToPascalCase();
@@ -138,7 +136,6 @@ namespace TelegramBotApiScraper
 
                             records.Add(name, new {
                                 type = "Record",
-                                order,
                                 name,
                                 description,
                                 fields
@@ -164,7 +161,6 @@ namespace TelegramBotApiScraper
 
                             unions.Add(name, new {
                                 type = "Union",
-                                order,
                                 name,
                                 description,
                                 cases
@@ -175,7 +171,6 @@ namespace TelegramBotApiScraper
                     {
                         stubs.Add(name, new {
                             type = "Stub",
-                            order,
                             name,
                             description
                         });
@@ -214,15 +209,12 @@ namespace TelegramBotApiScraper
 
                     methods.Add(name, new {
                         type = "Method",
-                        order,
                         name,
                         description,
                         returns,
                         parameters
                     });
                 }
-
-                order++;
             }
 
             foreach (var primitiveName in primitiveNames)
