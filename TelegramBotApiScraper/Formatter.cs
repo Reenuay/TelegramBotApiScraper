@@ -154,6 +154,10 @@ namespace TelegramBotApiScraper
             if (description.Contains("64-bit"))
             {
                 var start = description.IndexOf(" This number");
+                if (start < 0)
+                {
+                    start = description.IndexOf(" It can be bigger");
+                }
 
                 description = description[..start];
             }
